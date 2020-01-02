@@ -20,3 +20,20 @@ optional arguments:
 ```
 http://127.0.0.1:5000/asn/X or http://127.0.0.1:5000/ipv6/asn/X, where X is a BGP Autonomous System Number.
 ```
+
+### Example docker-compose.yaml:
+
+```
+version: "3.7"
+
+services:
+  asn-to-ip:
+    container_name: asn-to-ip
+    image: ddimick/asn-to-ip
+    restart: always
+
+    ports:
+      - 5000:5000/tcp
+
+    command: --daemon --port 5000
+```
