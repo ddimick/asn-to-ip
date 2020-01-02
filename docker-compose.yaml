@@ -1,0 +1,8 @@
+version: "3.7"
+
+services:
+  asn-to-ip:
+    build: ${PROJECT_PATH}/build/asn-to-ip
+    image: ddimick/asn-to-ip:latest
+    restart: "no"
+    command: echo "asn-to-ip docker-compose startup disabled"
