@@ -1,10 +1,6 @@
 ## ASN to IP
 
-### Queries whois and returns IP netblocks associated with BGP Autonomous System Numbers (ASN).
-
-### Returns IPv4 results by default, adds IPv6 results as an option.
-
-### Can operate either CLI or as a basic web service.
+Queries whois and returns IP netblocks associated with BGP Autonomous System Numbers (ASN). Returns IPv4 results by default, adds IPv6 results as an option. Can operate either CLI or as a basic web service.
 
 #### Command-Line Usage:
 
