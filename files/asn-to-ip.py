@@ -72,7 +72,7 @@ if __name__  ==  '__main__':
   
     @app.route('/')
     def usage():
-      return('usage: {0}asn/X or {0}ipv6/asn/X, where X is a BGP Autonomous System Number.'.format(request.url_root))
+      return('usage: {0}asn/X or {0}ipv6/asn/X, where X is a BGP Autonomous System Number. Multiple ASNs may be specified by separating them with commas, like {0}asn/X,X,X.'.format(request.url_root))
   
     ## Catch requests with no ASN included.
     @app.route('/asn/')
@@ -87,22 +87,25 @@ if __name__  ==  '__main__':
     def empty_ipv6_asn():
       return redirect(url_for('usage'))
 
-    ## Catch requests where the ASN is not an integer.
-    @app.route('/asn/<_invalid>')
-    def invalid(_invalid):
-      return redirect(url_for('usage'))
-  
-    @app.route('/ipv6/asn/<_invalid>')
-    def invalid_ipv6(_invalid):
-      return redirect(url_for('usage'))
-  
     ## Route handlers for a properly formatted request.
-    @app.route('/asn/<int:_asn>')
+    @app.route('/asn/<_asn>')
     def asn(_asn):
-      return(get_asn_netblocks('{0}'.format(_asn), True, False))
+      res = ""
+      _asn_list = _asn.split(',')
+
+      for i in range(0, len(_asn_list)):
+        res += ''.join((get_asn_netblocks('{0}'.format(_asn_list[i]), True, False), "\n"))
+
+      return(res)
   
-    @app.route('/ipv6/asn/<int:_asn>')
+    @app.route('/ipv6/asn/<_asn>')
     def asn_ipv6(_asn):
-      return(get_asn_netblocks('{0}'.format(_asn), True, True))
-  
+      res = ""
+      _asn_list = _asn.split(',')
+
+      for i in range(0, len(_asn_list)):
+        res += ''.join((get_asn_netblocks('{0}'.format(_asn_list[i]), True, True), "\n"))
+
+      return(res)
+
     app.run(debug = False, host = '0.0.0.0', port = args.port)
