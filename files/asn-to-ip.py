@@ -105,4 +105,4 @@ if __name__  ==  '__main__':
     def asn_ipv6(_asn):
       return(get_asn_netblocks('{0}'.format(_asn), True, True))
   
-    app.run(debug = False, port = args.port)
+    app.run(debug = False, host = '0.0.0.0', port = args.port)
