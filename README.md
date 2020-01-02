@@ -18,7 +18,7 @@ optional arguments:
 ### Web Server Usage:
 
 ```
-http://127.0.0.1:5000/asn/X or http://127.0.0.1:5000/ipv6/asn/X, where X is a BGP Autonomous System Number.
+usage: http://127.0.0.1:5000/asn/X or http://127.0.0.1:5000/ipv6/asn/X, where X is a BGP Autonomous System Number. Multiple ASNs may be specified by separating them with commas, like http://127.0.0.1:5000/asn/X,X,X.
 ```
 
 ### Example docker-compose.yaml:
