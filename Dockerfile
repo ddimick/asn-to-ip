@@ -1,9 +1,11 @@
 FROM python:3.7-alpine
 
-RUN pip install Flask
+WORKDIR /app
 
-COPY files/asn-to-ip.py /
+COPY src/requirements.txt ./
 
-WORKDIR /
+RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "asn-to-ip.py"]
+COPY src/asn-to-ip.py ./
+
+ENTRYPOINT ["python", "/app/asn-to-ip.py"]
