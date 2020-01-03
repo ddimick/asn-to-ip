@@ -75,7 +75,7 @@ if __name__  ==  '__main__':
 
   ## Web daemon mode
   elif _parser_args.daemon:
-    from flask import Flask, request, url_for, redirect
+    from flask import Flask, request
   
     app = Flask(__name__)
   
