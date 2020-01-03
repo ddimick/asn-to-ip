@@ -2,30 +2,34 @@
 #--------------------------------------#
 # File name: asn-to-ip.py
 # Author: Doug Dimick <doug@dimick.net>
-# Last Modified: Jan 2 2020
+# Last Modified: Jan 3 2020
 #--------------------------------------#
 
+import re
+import socket
 import argparse
 
-parser = argparse.ArgumentParser()
+_parser = argparse.ArgumentParser()
 
-group = parser.add_mutually_exclusive_group(required = True)
-group.add_argument('-a', '--asn', type = int, action = 'append', help = 'BGP Autonomous System Number (ASN)')
-group.add_argument('-d', '--daemon', action = 'store_true', help = 'Run as a web sever')
+_parser_group = _parser.add_mutually_exclusive_group(required = True)
+_parser_group.add_argument('-a', '--asn', action = 'append', help = 'BGP Autonomous System Number (ASN)')
+_parser_group.add_argument('-d', '--daemon', action = 'store_true', help = 'Run as a web sever')
 
-parser.add_argument('-p', '--port', default = 5000, help = 'Port for web server (default: 5000)')
-parser.add_argument('-6', '--ipv6', action = 'store_true', help = 'Also include ipv6 network blocks (default: false)')
+_parser.add_argument('-p', '--port', default = 5000, help = 'Port for web server (default: 5000)')
+_parser.add_argument('-6', '--ipv6', action = 'store_true', help = 'Also include ipv6 network blocks (default: false)')
+_parser.add_argument('--debug', action = 'store_true', help = 'Enable debug mode')
 
-args = parser.parse_args()
+_parser_args = _parser.parse_args()
 
-## https://tools.ietf.org/html/rfc3912
-def whois_request(domain, server, port = 43):
-  import socket
+
+## Controls socket communication to whois server.
+def whois(_domain, _server = 'whois.radb.net', _port = 43):
 
   _sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  _sock.connect((server, port))
-  _sock.send(domain.encode('utf-8'))
-  _result = ""
+  _sock.connect((_server, _port))
+  _sock.send(_domain.encode('utf-8'))
+
+  _result = ''
 
   while True:
     _data = _sock.recv(1024).decode('iso-8859-1')
@@ -33,79 +37,62 @@ def whois_request(domain, server, port = 43):
     if not _data:
       break
 
-    _result +=  _data
+    _result += _data
 
-  return _result
+  return(_result)
 
-def get_asn_netblocks(AS, IPV4 = True, IPV6 = True):
-  import re
 
-  _asn = re.search("(?:AS)?(\d{1,10})", AS, re.IGNORECASE)
+## Performs the whois query and returns a multiline string of the resulting IPv4 and/or IPv6 networks.
+def get_asn_networks(_asn, _ipv4 = True, _ipv6 = False):
+  _valid_asn = re.search('(?:AS)?(\d{1,10})', _asn, re.IGNORECASE)
 
-  if not _asn:
-    return ""
+  if not _valid_asn:
+    return('Invalid ASN "{0}". Example valid format is "AS54321" or simply "54321".'.format(_asn))
 
-  _asn = "AS{0}".format(_asn.group(1))
+  _valid_asn = 'AS{0}'.format(_valid_asn.group(1))
 
-  is6 = ""
-  if IPV6:
-    is6 = "[6]?" if IPV4 else "6"
+  _route_type = ''
+  if _ipv6:
+    _route_type = '[6]?' if _ipv4 else '6'
 
-  _raw = whois_request("-i origin {0}\r\n".format(_asn),"whois.radb.net")
+  _result = whois('-i origin {0}\r\n'.format(_valid_asn))
 
-  if _raw:
-    _ips = re.findall("^route{0}:\s+(.*?)$".format(is6),_raw,re.MULTILINE)
+  if _result:
+    _networks = re.findall('^route{0}:\s+(.*?)$'.format(_route_type), _result, re.MULTILINE)
 
-    return "\n".join(_ips)
+    if _networks:
+      return('\n'.join(_networks))
 
-  return ""
+  return('')
+
 
 if __name__  ==  '__main__':
-  if args.asn:
-    for i in range(0, len(args.asn)):
-      print(get_asn_netblocks(str(args.asn[i]), IPV4 = True, IPV6 = args.ipv6))
 
-  elif args.daemon:
+  ## Command-line mode
+  if _parser_args.asn:
+    for i in range(0, len(_parser_args.asn)):
+      print(get_asn_networks(str(_parser_args.asn[i]), True, _parser_args.ipv6))
+
+  ## Web daemon mode
+  elif _parser_args.daemon:
     from flask import Flask, request, url_for, redirect
   
     app = Flask(__name__)
   
     @app.route('/')
-    def usage():
-      return('usage: {0}asn/X or {0}ipv6/asn/X, where X is a BGP Autonomous System Number. Multiple ASNs may be specified by separating them with commas, like {0}asn/X,X,X.'.format(request.url_root))
-  
-    ## Catch requests with no ASN included.
-    @app.route('/asn/')
-    def empty_asn():
-      return redirect(url_for('usage'))
+    def index():
+      if request.args.get('asn') is not None:
+        _asn_list = request.args.get('asn').split(',')
 
-    @app.route('/ipv6/')
-    def empty_ipv6():
-      return redirect(url_for('usage'))
+        _ipv6 = True if request.args.get('ipv6') is not None else False
 
-    @app.route('/ipv6/asn/')
-    def empty_ipv6_asn():
-      return redirect(url_for('usage'))
+        _result = ''
 
-    ## Route handlers for a properly formatted request.
-    @app.route('/asn/<_asn>')
-    def asn(_asn):
-      res = ""
-      _asn_list = _asn.split(',')
+        for _i in range(0, len(_asn_list)):
+          _result += ''.join((get_asn_networks('{0}'.format(_asn_list[_i]), True, _ipv6), '\n'))
 
-      for i in range(0, len(_asn_list)):
-        res += ''.join((get_asn_netblocks('{0}'.format(_asn_list[i]), True, False), "\n"))
+        return(_result)
 
-      return(res)
-  
-    @app.route('/ipv6/asn/<_asn>')
-    def asn_ipv6(_asn):
-      res = ""
-      _asn_list = _asn.split(',')
+      return('usage: {0}?asn=X, where X is one or more BGP Autonomous System Numbers separated by commas.\nReturns IPv4 results by default. Add &ipv6 to also include IPv6 results, like {0}?asn=X&ipv6.'.format(request.url_root))
 
-      for i in range(0, len(_asn_list)):
-        res += ''.join((get_asn_netblocks('{0}'.format(_asn_list[i]), True, True), "\n"))
-
-      return(res)
-
-    app.run(debug = False, host = '0.0.0.0', port = args.port)
+    app.run(debug = _parser_args.debug, host = '0.0.0.0', port = _parser_args.port)
