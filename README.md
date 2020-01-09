@@ -5,15 +5,16 @@ Queries whois and returns IP netblocks associated with BGP Autonomous System Num
 #### Command-Line Usage:
 
 ```
-usage: asn-to-ip.py [-h] (-a ASN | -d) [-p PORT] [-6] [--debug]
+usage: asn-to-ip.py [-h] (-a ASN | -d) [-i IP] [-p PORT] [-6] [--debug]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a ASN, --asn ASN     BGP Autonomous System Number (ASN)
-  -d, --daemon          Run as a web sever
+  -a ASN, --asn ASN     BGP Autonomous System Number (ASN), may use this parameter multiple times
+  -d, --daemon          Run as a web sever (requires Flask)
+  -i IP, --ip IP        Host IP to attach the web server (default 127.0.0.1, use 0.0.0.0 for all interfaces)
   -p PORT, --port PORT  Port for web server (default: 5000)
   -6, --ipv6            Also include ipv6 network blocks (default: false)
-  --debug               Enable debug mode
+  --debug               Enable debug mode for Flask server
 ```
 
 ### Web Server Usage:
@@ -37,5 +38,5 @@ services:
     ports:
       - 5000:5000/tcp
 
-    command: --daemon --port 5000
+    command: --daemon --port 5000 --ip 0.0.0.0
 ```
