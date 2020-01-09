@@ -7,7 +7,7 @@ import ipaddress
 
 _parser = argparse.ArgumentParser()
 _parser_group = _parser.add_mutually_exclusive_group(required = True)
-_parser_group.add_argument('-a', '--asn', action = 'append', help = 'BGP Autonomous System Number (ASN)')
+_parser_group.add_argument('-a', '--asn', action = 'append', help = 'BGP Autonomous System Number (ASN), may use this parameter multiple times')
 _parser_group.add_argument('-d', '--daemon', action = 'store_true', help = 'Run as a web sever (requires Flask)')
 _parser.add_argument('-i', '--ip', default = '127.0.0.1', help = 'Host IP to attach the web server (default 127.0.0.1, use 0.0.0.0 for all interfaces)')
 _parser.add_argument('-p', '--port', default = '5000', help = 'Port for web server (default: 5000)')
