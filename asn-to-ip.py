@@ -48,7 +48,7 @@ def get_network_list(_asn_list = list(), _result = list()):
       return('Invalid ASN "{0}". Example valid format is "AS54321" or simply "54321".'.format(_asn))
 
   # Builds list of valid networks, removing duplicates.
-  for _network in telnet(_asn_list).split():
+  for _network in set(telnet(_asn_list).split()):
     try:
       _result.append(ipaddress.ip_network(_network, strict = False))
     except ValueError:
