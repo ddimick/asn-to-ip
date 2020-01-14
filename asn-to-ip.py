@@ -17,7 +17,7 @@ _parser.add_argument('--debug', action = 'store_true', help = 'Enable debug mode
 _parser_args = _parser.parse_args()
 
 
-## Controls telnet session.
+## Performs whois query via telnet, returns a string.
 def telnet(_asn_list, _server = 'whois.radb.net', _port = '43', _timeout = 10):
 
   # Build query string.
@@ -47,14 +47,15 @@ def get_network_list(_asn_list = list(), _result = list()):
     else:
       return('Invalid ASN "{0}". Example valid format is "AS54321" or simply "54321".'.format(_asn))
 
-  # Builds list of valid networks, removing duplicates.
-  for _network in set(telnet(_asn_list).split()):
+  # Builds list of valid networks.
+  for _network in telnet(_asn_list).split():
     try:
       _result.append(ipaddress.ip_network(_network, strict = False))
     except ValueError:
       continue # Ignore anything that isn't a valid network.
 
-  return('\n'.join(map(str, sorted(_result, key=ipaddress.get_mixed_type_key))))
+  # Return a deduplicated and sorted multi-line string.
+  return('\n'.join(map(str, sorted(set(_result), key = ipaddress.get_mixed_type_key))))
 
 
 if __name__  ==  '__main__':
