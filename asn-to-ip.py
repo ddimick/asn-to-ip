@@ -37,7 +37,9 @@ def telnet(_asn_list, _server = 'whois.radb.net', _port = '43', _timeout = 10):
 
 
 ## Gets a list of networks from the list of ASNs. Returns a sorted and deduplicated multi-line string.
-def get_network_list(_asn_list = list(), _result = list()):
+def get_network_list():
+  _asn_list = list()
+  _result = list()
 
   # Build list of ASNs.
   for _asn in _parser_args.asn:
@@ -76,6 +78,11 @@ if __name__  ==  '__main__':
         _parser_args.asn = request.args.get('asn').split(',')
         _parser_args.ipv6 = True if request.args.get('ipv6') is not None else False
         return(get_network_list())
+
+      if _parser_args.debug == True:
+        from pprint import pprint
+        from inspect import getmembers
+        pprint(getmembers(request))
 
       return('usage: {0}?asn=X, where X is one or more BGP Autonomous System Numbers separated by commas.\nReturns IPv4 results by default. Add &ipv6 to also include IPv6 results, like {0}?asn=X&ipv6.'.format(request.url_root))
 
