@@ -43,7 +43,7 @@ def get_network_list():
 
   # Build list of ASNs.
   for _asn in _parser_args.asn:
-    _valid_asn = re.search('(?:AS)?(\d{1,10})', _asn, re.IGNORECASE) # Check that we have a valid-looking ASN.
+    _valid_asn = re.search(r'(?:AS)?(\d{1,10})', _asn, re.IGNORECASE) # Check that we have a valid-looking ASN.
     if _valid_asn:
       _asn_list.append('AS{0}'.format(_valid_asn.group(1)))
     else:
