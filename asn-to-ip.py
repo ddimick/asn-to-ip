@@ -72,8 +72,10 @@ if __name__  ==  '__main__':
   
     app = Flask(__name__)
   
-    @app.route('/')
-    def index():
+    # Respond on any path used.
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def index(path):
       if request.args.get('asn') is not None:
         _parser_args.asn = request.args.get('asn').split(',')
         _parser_args.ipv6 = True if request.args.get('ipv6') is not None else False
