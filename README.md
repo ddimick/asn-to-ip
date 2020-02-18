@@ -41,7 +41,7 @@ $ curl -L "http://localhost:5000?asn=AS15169,AS109&ipv6"
 
 ### Docker cli usage:
 ```
-$ docker run --rm -it ddimick/asn-to-ip:latest --asn AS15169 --asn AS109 --ipv6
+$ docker run --rm -it ddimick/asn-to-ip:latest ./asn-to-ip.py --asn AS15169 --asn AS109 --ipv6
 8.8.4.0/24
 8.8.8.0/24
 8.15.202.0/24
@@ -63,6 +63,4 @@ services:
 
     ports:
       - 5000:5000/tcp
-
-    command: --daemon --port 5000 --ip 0.0.0.0
 ```
