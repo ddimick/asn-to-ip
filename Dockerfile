@@ -24,9 +24,9 @@ RUN pip install --no-cache -r requirements.txt
 
 COPY asn-to-ip.py ./
 
-ARG USER
-ARG USER_UID
-ARG USER_GID
+ARG USER=docker
+ARG USER_UID=1000
+ARG USER_GID=1000
 
 RUN groupadd --gid ${USER_GID} ${USER} \
  && useradd --system --uid ${USER_UID} --gid ${USER_GID} -M -d / -s /sbin/nologin ${USER}
